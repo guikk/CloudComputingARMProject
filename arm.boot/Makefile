@@ -45,7 +45,7 @@ QEMU_SERIAL=-serial mon:stdio
 # Otherwise, put a full path + prefix here, something
 #   TOOLCHAIN=/usr/bin/arm-none-eabi
 #-------------------------------------------------------------------
-TOOLCHAIN=arm-none-eabi
+TOOLCHAIN=arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin/arm-none-eabi
 
 #-------------------------------------------------------------------
 # Compiler, assembler, and linker flags
