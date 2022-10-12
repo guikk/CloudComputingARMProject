@@ -11,3 +11,8 @@ arm-none-eabi-as  -g -o vector.o vector.s
 make: arm-none-eabi-as: Command not found
 make: *** [Makefile:69: vector.o] Error 127
 ~~~
+
+## October 12th
+- ARM toolkit installation
+- Edit the toolkit path on the Makefile in order to succesfully compile the project
+- Add arm toolkit folder to .gitignore
