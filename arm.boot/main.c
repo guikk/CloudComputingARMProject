@@ -5,6 +5,10 @@
  * in assembly language, see the reset.s file.
  */
 
+static int dummy1;
+static int dummy2 = 0;
+static int dummy3 = 13;
+
 void _start() {
   int i = 0;
   int count = 0;

@@ -50,7 +50,7 @@ why in the code in the file "reset.s".
 ---------------------------------------------------
 Git-tag: week1.step2
 ---------------------------------------------------
-  
+
 Understand the boot sequence, following the execution step
 by step under gdb. The use of gdb is MANDATORY!
 
@@ -73,7 +73,7 @@ How could you verify that your C program executes safely?
 Had support for kprintf, see the file "kprintf.c".
 
 ---------------------------------------------------
-Git-tag: week1.step2
+Git-tag: week1.step3
 ---------------------------------------------------
 
 Make sure you understand the UART BAR, register offsets, and
@@ -105,7 +105,7 @@ that will be usefull to implement the clearing of the
 terminal window.
 
 ---------------------------------------------------
-Git-tag: week1.step3
+Git-tag: week1.step4
 ---------------------------------------------------
 
 You will code the beginning of a console shell, on the 
