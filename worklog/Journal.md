@@ -29,3 +29,17 @@ VPB has roughly 30x more memory, the processors are different, from configuratio
 
 The BSS section contains uninitialized static data that must have no value, hence it needs to be reset. It is 16-bits aligned to fit in registers.
 [Data segment - Wikipedia](https://en.wikipedia.org/wiki/Data_segment)
+
+> End of step 1.
+
+## October 17th
+
+- Running the boot sequence with gdb
+
+The periodic "Zzzz" output shows the user that the excecution is active, as the main program runs 10M loops and prints something repeatedly.
+
+The stack top is defined in the end because the stack grows downward in memory. We know that the stack is working properly if function calls are being correctly handled.
+
+If too many function calls were made, there would be a stack overflow. To verify that the program is running safely, you could test if the stack top is greater or equal to the end of the BSS section.
+
+> End of step 2
