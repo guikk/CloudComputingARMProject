@@ -43,3 +43,10 @@ The stack top is defined in the end because the stack grows downward in memory. 
 If too many function calls were made, there would be a stack overflow. To verify that the program is running safely, you could test if the stack top is greater or equal to the end of the BSS section.
 
 > End of step 2
+
+## October 19th
+
+- Added telnet serial line on address localhost:4321
+- Linked kprintf to UART1
+
+Compiler error on main.c: undefined reference to `kprintf'
