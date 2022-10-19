@@ -1,4 +1,5 @@
 #include "main.h"
+#include "kprintf.h"
 
 /**
  * This is the C entry point, upcalled once the hardware has been setup properly
@@ -30,5 +31,6 @@ void _start() {
     if (c == '\r')
       uart_send(UART0, '\n');
     uart_send(UART0, c);
+    kprintf("Character: %c, ASCII: %d\n", c, c);
   }
 }

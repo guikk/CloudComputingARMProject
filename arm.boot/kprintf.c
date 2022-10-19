@@ -34,14 +34,16 @@
  *  @(#)subr_prf.c  8.3 (Berkeley) 1/21/94
  */
 
-#include "main.h"
+#include "kprintf.h"
 
 /*
  * You need to define this function, somewhere.
  * It is the internal function that kprintf uses internally
  * to output one single character.
  */
-void kputchar(int c);
+void kputchar(int c){
+	uart_send_string(UART1, "c");
+}
 
 /*
  * This is an equivalent to the function "printf" that you known about,
