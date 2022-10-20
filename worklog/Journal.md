@@ -60,7 +60,7 @@ Compiler error on main.c: undefined reference to `kprintf'
 | - | - | - |
 | Regular keys | Character appears on console | Character ASCII |
 | Arrow keys | Cursor moves to direction | 3 different ASCII codes |
-| Backspace | Nothing | 27 |
+| Backspace | Nothing | 127 |
 | Delete | Nothing | 4 different ASCII codes |
 
 When we type regular keys, the expected ASCII code is shown and the character is correctly printed in the console. 
@@ -70,3 +70,5 @@ Pressing backspace and delete has no effect to the console.
 (?) The behavior of the arrows is expected.
 
 > End of step 3.
+
+- Added a method clear screen
