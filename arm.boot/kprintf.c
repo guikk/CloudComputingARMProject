@@ -42,7 +42,13 @@
  * to output one single character.
  */
 void kputchar(int c){
-	uart_send_string(UART1, "c");
+	switch (c) {
+		case '\n':
+			uart_send_string(UART1, "\n\r");
+			break;
+		default:
+			uart_send(UART1, c);
+	}
 }
 
 /*
