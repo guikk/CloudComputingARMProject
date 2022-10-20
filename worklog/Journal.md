@@ -50,3 +50,23 @@ If too many function calls were made, there would be a stack overflow. To verify
 - Linked kprintf to UART1
 
 Compiler error on main.c: undefined reference to `kprintf'
+
+## October 20th
+
+- Added kprintf.o to Makefile OBJS variable (object file list)
+- Log typed characters ASCII code directly to telnet serial line
+
+| Key typed | Console action | ASCII code(s) |
+| - | - | - |
+| Regular keys | Character appears on console | Character ASCII |
+| Arrow keys | Cursor moves to direction | 3 different ASCII codes |
+| Backspace | Nothing | 27 |
+| Delete | Nothing | 4 different ASCII codes |
+
+When we type regular keys, the expected ASCII code is shown and the character is correctly printed in the console. 
+In the other hand, the result to pressing arrow keys is a trigger of 3 different ASCII codes to each arrow, and the cursor moving on the console.
+Pressing backspace and delete has no effect to the console.
+
+(?) The behavior of the arrows is expected.
+
+> End of step 3.
