@@ -6,5 +6,6 @@
 
 void clear_screen(void);
 void handle_char(char c);
+void show_prompt(void);
 
 #endif /* SHELL_H_ */

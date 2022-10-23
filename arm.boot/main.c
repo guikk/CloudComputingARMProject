@@ -1,5 +1,6 @@
 #include "main.h"
 #include "kprintf.h"
+#include "shell.h"
 
 /**
  * This is the C entry point, upcalled once the hardware has been setup properly
@@ -13,9 +14,11 @@ static int dummy3 = 13;
 void _start() {
 	int i = 0;
 	int count = 0;
-	clear_screen();
 	uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
 	uart_send_string(UART0, "\nHello world!\n");
+	for (int k = 0; k < 500000000; k++);
+	clear_screen();
+	show_prompt();
 
 	while (1) {
     	unsigned char c;
