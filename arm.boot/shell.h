@@ -4,8 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void clear_screen(void);
+void init_shell(void);
 void handle_char(char c);
-void show_prompt(void);
 
 #endif /* SHELL_H_ */

@@ -2,10 +2,11 @@
 #include "kprintf.h"
 #include "board.h"
 #include <unistd.h>
+#include <string.h>
 
 #define CONSOLE_HEIGHT 40
 #define CONSOLE_WIDTH 80
-#define BUFFER_SIZE 50
+#define BUFFER_CAPACITY 70
 
 #define BACKSPACE 8
 #define LF 10
@@ -16,24 +17,53 @@
 #define MAX_READABLE_ASCII 126
 #define DEL 127
 
-// CIRCBUF_DEF(uint8_t, buffer, BUFFER_SIZE);
+uint8_t buffer[BUFFER_CAPACITY];
+static int buffer_len = 0;
+
+void show_prompt(void) {
+    uart_send_string(UART0, "cloudshell> ");
+}
+
+void clear_screen(void) {
+    uart_send(UART0, ESC);
+    uart_send(UART0, '[');
+    uart_send(UART0, '2');
+    uart_send(UART0, 'J');
+}
+
+void save_cursor(void) {
+    uart_send(UART0, ESC);
+    uart_send(UART0, '7');
+
+}
+
+void init_shell(void) {
+	clear_screen();
+    show_prompt();
+    save_cursor();
+}
+
+void load_cursor(void) {
+    uart_send(UART0, ESC);
+    uart_send(UART0, '8');
+}
 
 void cursor_up(void) {
     uart_send(UART0, ESC);
-    uart_send(UART0, 91);
-    uart_send(UART0, 65);
+    uart_send(UART0, '[');
+    uart_send(UART0, 'A');
 }
 
 void cursor_down(void) {
     uart_send(UART0, ESC);
-    uart_send(UART0, 91);
-    uart_send(UART0, 66);
+    uart_send(UART0, '[');
+    uart_send(UART0, 'B');
 }
 
 void cursor_right(void) {
     uart_send(UART0, ESC);
-    uart_send(UART0, 91);
-    uart_send(UART0, 67);
+    uart_send(UART0, '[');
+    uart_send(UART0, 'C');
 }
 
 void cursor_left(void) {
@@ -47,40 +77,90 @@ void backspace(void) {
 }
 
 void read_escape_sequence(void) {
-    uart_send(UART0, ESC)
+    // TODO: Verify if there isn't a way to implement by callbacks
+    uart_send(UART0, ESC);
+    // Read ESC
+
+    unsigned char c;
+    uart_receive(UART0, &c);
+    uart_send(UART0, c);
+    if (c != '[') return;
+    // Read [
+
+    uart_receive(UART0, &c);
+    switch (c) {
+        case 'A':
+            // ARROW UP
+            kprintf("ARROW UP - ESC[A\n"); 
+            uart_send(UART0, c);
+            break;
+        case 'B':
+            // ARROW DOWN
+            kprintf("ARROW DOWN - ESC[B\n");
+            uart_send(UART0, c);
+            break;
+        case 'C':
+            // ARROW RIGHT
+            kprintf("ARROW RIGHT - ESC[C\n");
+            uart_send(UART0, c);
+            break;
+        case 'D':
+            // ARROW LEFT
+            kprintf("ARROW LEFT - ESC[D\n");
+            uart_send(UART0, c);
+            break;
+        case '3':
+            uart_send(UART0, c);
+            uart_receive(UART0, &c);
+            if (c != '3') break;
+            // DELETE
+            kprintf("DELETE - ESC[3~\n");
+            uart_send(UART0, c);
+            break;
+    }
 }
 
 void handle_char(char c) {
+    if (c == ESC) {
+        read_escape_sequence();
+        return;
+    }
+
+    load_cursor();
+
     switch(c) {
         case CR:
+            // clear buffer
+            while (buffer_len > 0) {
+                buffer_len--; 
+                buffer[buffer_len] = 0;
+            }
             uart_send(UART0, LF);
             show_prompt();
             break;
-        case ESC:
-            read_escape_sequence();
+
+        case MIN_READABLE_ASCII ... MAX_READABLE_ASCII:
+            if (buffer_len < BUFFER_CAPACITY) {
+                buffer[buffer_len] = c;
+                buffer_len++;
+                uart_send(UART0, c);
+            }
             break;
+
         case DEL:
-            backspace();
+            if (buffer_len > 0) {
+                buffer_len--;
+                buffer[buffer_len] = 0;
+                backspace();
+            }
             break;
-        default:
-            uart_send(UART0, c);
     }
+
+    save_cursor();
 
     // Log read ASCII value
-    kprintf("ASCII(%d)\n", c);
-}
-
-void clear_screen(void) {
-    for (int i = 0; i < 2*CONSOLE_HEIGHT; i++) {
-        uart_send(UART0, LF);
-    }
-
-    for (int i = 0; i < CONSOLE_HEIGHT; i++) {
-        cursor_up();
-    }
-}
-
-void show_prompt(void) {
-    uart_send_string(UART0, "cloudshell> ");
+    kprintf("ASCII(%d)\t", c);
+    kprintf("Buffer= %s\n", buffer);
+    
 }
 

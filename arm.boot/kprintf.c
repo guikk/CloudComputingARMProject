@@ -34,7 +34,10 @@
  *  @(#)subr_prf.c  8.3 (Berkeley) 1/21/94
  */
 
+#include <stddef.h>
+#include <stdint.h>
 #include "kprintf.h"
+#include "board.h"
 
 /*
  * You need to define this function, somewhere.

@@ -17,8 +17,7 @@ void _start() {
 	uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
 	uart_send_string(UART0, "\nHello world!\n");
 	for (int k = 0; k < 500000000; k++);
-	clear_screen();
-	show_prompt();
+	init_shell();
 
 	while (1) {
     	unsigned char c;

@@ -82,3 +82,6 @@ Pressing backspace and delete has no effect to the console.
 - Added a shell prompt
 
 Found a good resource for escape sequences [here](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797).
+
+- Added a buffer to read the line entered
+- Added support to change behavior of escape sequences
