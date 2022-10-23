@@ -71,4 +71,12 @@ Pressing backspace and delete has no effect to the console.
 
 > End of step 3.
 
-- Added a method clear screen
+- Added a method to clear the console screen
+
+## October 21st
+
+- Added a method for deleting previous character
+
+## October 23rd
+
+- Added a shell prompt
