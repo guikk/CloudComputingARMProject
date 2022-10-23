@@ -80,3 +80,5 @@ Pressing backspace and delete has no effect to the console.
 ## October 23rd
 
 - Added a shell prompt
+
+Found a good resource for escape sequences [here](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797).
