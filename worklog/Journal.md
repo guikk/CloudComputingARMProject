@@ -85,3 +85,7 @@ Found a good resource for escape sequences [here](https://gist.github.com/fnky/4
 
 - Added a buffer to read the line entered
 - Added support to change behavior of escape sequences
+
+## October 24th
+
+- Most of the imports do not work, string and memory methods are not recognized and labeled with "undefined" 
