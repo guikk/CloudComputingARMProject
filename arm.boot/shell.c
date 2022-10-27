@@ -20,6 +20,7 @@
 
 unsigned char buffer[BUFFER_CAPACITY];
 static int buffer_len = 0;
+// TODO: implement history with a circular buffer
 // unsigned char buffer_history[HISTORY_LEN][BUFFER_CAPACITY];
 // static int history_start = 0;
 // static int history_end = 0;
@@ -90,6 +91,7 @@ void backspace(void) {
 
 void read_escape_sequence(void) {
     // TODO: Verify if there isn't a way to implement by callbacks
+    // TODO: fix bug when sequences are interupted and printed
     uart_send(UART0, ESC);
     // Read ESC
 
@@ -103,21 +105,25 @@ void read_escape_sequence(void) {
     switch (c) {
         case 'A':
             // ARROW UP
+            // TODO: bind escape sequence with looking up in command history
             kprintf("ARROW UP - ESC[A\n"); 
             uart_send(UART0, c);
             break;
         case 'B':
             // ARROW DOWN
+            // TODO: bind escape sequence with looking down in command history
             kprintf("ARROW DOWN - ESC[B\n");
             uart_send(UART0, c);
             break;
         case 'C':
             // ARROW RIGHT
+            // TODO: bind escape sequence with editing line buffer
             kprintf("ARROW RIGHT - ESC[C\n");
             uart_send(UART0, c);
             break;
         case 'D':
             // ARROW LEFT
+            // TODO: bind escape sequence with editing line buffer
             kprintf("ARROW LEFT - ESC[D\n");
             uart_send(UART0, c);
             break;
@@ -126,6 +132,7 @@ void read_escape_sequence(void) {
             uart_receive(UART0, &c);
             if (c != '3') break;
             // DELETE
+            // TODO: bind escape sequence with editing line buffer
             kprintf("DELETE - ESC[3~\n");
             uart_send(UART0, c);
             break;
