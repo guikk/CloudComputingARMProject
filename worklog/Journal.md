@@ -88,4 +88,12 @@ Found a good resource for escape sequences [here](https://gist.github.com/fnky/4
 
 ## October 24th
 
-- Most of the imports do not work, string and memory methods are not recognized and labeled with "undefined" 
+- Most of the imports do not work, string and memory methods are not recognized and labeled with "undefined"
+
+- Learned that I can't just import standard C libraries, because they have to be available in the toolkit instead of my operating system.
+
+## October 27th
+
+- Imported some `<string.h>` functions to be able to compare strings
+
+- Now the parsing works and the reset and echo methods too

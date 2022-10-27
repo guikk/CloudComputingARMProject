@@ -2,11 +2,12 @@
 #include "kprintf.h"
 #include "board.h"
 #include <unistd.h>
-#include <string.h>
+#include "string.h"
 
 #define CONSOLE_HEIGHT 40
 #define CONSOLE_WIDTH 80
 #define BUFFER_CAPACITY 70
+#define HISTORY_LEN 20
 
 #define BACKSPACE 8
 #define LF 10
@@ -17,8 +18,12 @@
 #define MAX_READABLE_ASCII 126
 #define DEL 127
 
-uint8_t buffer[BUFFER_CAPACITY];
+unsigned char buffer[BUFFER_CAPACITY];
 static int buffer_len = 0;
+// unsigned char buffer_history[HISTORY_LEN][BUFFER_CAPACITY];
+// static int history_start = 0;
+// static int history_end = 0;
+
 
 void show_prompt(void) {
     uart_send_string(UART0, "cloudshell> ");
@@ -31,6 +36,12 @@ void clear_screen(void) {
     uart_send(UART0, 'J');
 }
 
+void cursor_to_home(void) {    
+    uart_send(UART0, ESC);
+    uart_send(UART0, '[');
+    uart_send(UART0, 'H');
+}
+
 void save_cursor(void) {
     uart_send(UART0, ESC);
     uart_send(UART0, '7');
@@ -39,6 +50,7 @@ void save_cursor(void) {
 
 void init_shell(void) {
 	clear_screen();
+    cursor_to_home();
     show_prompt();
     save_cursor();
 }
@@ -120,6 +132,27 @@ void read_escape_sequence(void) {
     }
 }
 
+void parse() {
+    // reset
+    if (strcmp(buffer, "reset") == 0) {
+        clear_screen();
+        cursor_to_home();
+        show_prompt();
+    } 
+    // echo
+    else if (strncmp(buffer, "echo ", 5) == 0) {
+        uart_send(UART0, LF);
+        uart_send_string(UART0, buffer+5);
+        uart_send(UART0, LF);
+        show_prompt();
+    } 
+    // anything else
+    else {
+        uart_send(UART0, LF);
+        show_prompt();
+    }
+}
+
 void handle_char(char c) {
     if (c == ESC) {
         read_escape_sequence();
@@ -130,13 +163,12 @@ void handle_char(char c) {
 
     switch(c) {
         case CR:
+            parse(&buffer);
             // clear buffer
             while (buffer_len > 0) {
                 buffer_len--; 
                 buffer[buffer_len] = 0;
             }
-            uart_send(UART0, LF);
-            show_prompt();
             break;
 
         case MIN_READABLE_ASCII ... MAX_READABLE_ASCII:
@@ -161,6 +193,4 @@ void handle_char(char c) {
     // Log read ASCII value
     kprintf("ASCII(%d)\t", c);
     kprintf("Buffer= %s\n", buffer);
-    
 }
-
