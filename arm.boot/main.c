@@ -1,6 +1,7 @@
 #include "main.h"
 #include "kprintf.h"
 #include "shell.h"
+#include "vic.h"
 
 /**
  * This is the C entry point, upcalled once the hardware has been setup properly
@@ -33,4 +34,5 @@ void _start() {
 		}
 		handle_char(c);
 	}
+	wfi();
 }

@@ -49,7 +49,7 @@ If too many function calls were made, there would be a stack overflow. To verify
 - Added telnet serial line on address localhost:4321
 - Linked kprintf to UART1
 
-Compiler error on main.c: undefined reference to `kprintf'
+Compiler error on main.c: undefined reference to `kprintf`
 
 ## October 20th
 
@@ -97,3 +97,12 @@ Found a good resource for escape sequences [here](https://gist.github.com/fnky/4
 - Imported some `<string.h>` functions to be able to compare strings
 
 - Now the parsing works and the reset and echo methods too
+
+- Added week 2 base source
+
+> *Fall Break*
+
+## November 13th
+
+ - Went through the new provided files
+ - Add call to `wfi` on main program
