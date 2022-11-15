@@ -45,7 +45,7 @@ QEMU_SERIAL=-serial mon:stdio -serial telnet:localhost:4321,server,nowait
 # Otherwise, put a full path + prefix here, something
 #   TOOLCHAIN=/usr/bin/arm-none-eabi
 #-------------------------------------------------------------------
-TOOLCHAIN=arm-gnu-toolchain/bin/arm-none-eabi
+TOOLCHAIN=arm-none-eabi
 
 #-------------------------------------------------------------------
 # Compiler, assembler, and linker flags
