@@ -14,7 +14,6 @@ static int dummy3 = 13;
 
 void _start() {
 	int i = 0;
-	int count = 0;
 	uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
 	uart_send_string(UART0, "\nHello world!\n");
 	for (int k = 0; k < 500000000; k++);
@@ -22,17 +21,11 @@ void _start() {
 
 	while (1) {
     	unsigned char c;
+		// wait for char
 		while (0 == uart_receive(UART0, &c)) {
-			// friendly reminder that you are polling and therefore spinning...
-			// not good for the planet! But until we introduce interrupts,
-			// there is nothing you can do about it... except comment out
-			// this annoying code ;-)
-			count++;
-			if (count > 10000000) {
-				count = 0;
-		 	}
+			for (int k = 0; k < 1000000; k++);
 		}
 		handle_char(c);
+		// wfi();
 	}
-	wfi();
 }

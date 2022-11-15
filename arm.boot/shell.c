@@ -138,10 +138,11 @@ void read_char(char c) {
     switch(c) {
         case BACKSPACE: // When pressed Ctrl + Backspace
             load_cursor();
-            while (buffer_len > 0 && buffer[buffer_len-1] != SPACE) {
+            while (buffer_len > 0) {
                 buffer_len--;
                 buffer[buffer_len] = 0;
                 backspace();
+                if (buffer[buffer_len-1] == SPACE)
             }
             break;
         case CR:
