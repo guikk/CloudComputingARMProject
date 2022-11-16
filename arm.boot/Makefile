@@ -7,7 +7,7 @@ QEMU_MACHINE=versatilepb
 ifeq ($(QEMU_MACHINE),versatileab) 
   QEMU_CPU=arm926
   QEMU_MEMORY=1M
-  ASFLAGS=-mcpu=arm926ej-s 
+  ASFLAGS= 
   CFLAGS= -DBOARD_VERSATILEAB -mcpu=arm926ej-s
 endif
 
@@ -45,7 +45,7 @@ QEMU_SERIAL=-serial mon:stdio -serial telnet:localhost:4321,server,nowait
 # Otherwise, put a full path + prefix here, something
 #   TOOLCHAIN=/usr/bin/arm-none-eabi
 #-------------------------------------------------------------------
-TOOLCHAIN=arm-gnu-toolchain/bin/arm-none-eabi
+TOOLCHAIN=arm-none-eabi
 
 #-------------------------------------------------------------------
 # Compiler, assembler, and linker flags
@@ -57,7 +57,7 @@ LDFLAGS= -g -T kernel.ld
 #-------------------------------------------------------------------
 # Object file list
 #-------------------------------------------------------------------
-OBJS= vector.o reset.o uart.o main.o kprintf.o shell.o string.o
+OBJS= vector.o reset.o uart.o main.o kprintf.o shell.o string.o # irqs.o vic.o cb.o
 
 #-------------------------------------------------------------------
 # Compilation rules
