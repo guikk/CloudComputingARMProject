@@ -1,36 +1,16 @@
 #include "shell.h"
 #include "kprintf.h"
 #include "board.h"
+#include "console.h"
 #include <unistd.h>
 #include "string.h"
 
 // Constants
-#define CONSOLE_HEIGHT 40
-#define CONSOLE_WIDTH 80
 #define BUFFER_CAPACITY 70
 // #define HISTORY_LEN 20
 
-// ASCII Codes
-#define BACKSPACE 8
-#define LF 10
-#define CR 13
-#define ESC 27
-#define SPACE 32
-#define MIN_READABLE_ASCII 32
-#define MAX_READABLE_ASCII 126
-#define DEL 127
-
-// TODO: use circular buffer on cb.h
 unsigned char buffer[BUFFER_CAPACITY];
 static int buffer_len = 0;
-
-void clear_buffer(void) {
-    while (buffer_len > 0) {
-        buffer_len--; 
-        buffer[buffer_len] = 0;
-    }
-}
-
 typedef enum
 {
     IDLE,
@@ -45,28 +25,16 @@ static ReadState read_state = IDLE;
 // static int history_start = 0;
 // static int history_end = 0;
 
+void init_shell(void);
+void show_prompt(void);
+
+void parse_buffer(void);
+void handle_char(char c);
+void read_char(char c);
+void read_escape_sequence(char c);
 
 void show_prompt(void) {
-    uart_send_string(UART0, "cloudshell> ");
-}
-
-void clear_screen(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, '2');
-    uart_send(UART0, 'J');
-}
-
-void cursor_to_home(void) {    
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'H');
-}
-
-void save_cursor(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '7');
-
+    send_string("cloudshell> ");
 }
 
 void init_shell(void) {
@@ -76,39 +44,11 @@ void init_shell(void) {
     save_cursor();
 }
 
-void load_cursor(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '8');
-}
-
-void cursor_up(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'A');
-}
-
-void cursor_down(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'B');
-}
-
-void cursor_right(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'C');
-}
-
-void cursor_left(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'D');
-}
-
-void backspace(void) {
-    uart_send(UART0, BACKSPACE);
-    uart_send(UART0, SPACE);
-    uart_send(UART0, BACKSPACE);
+void clear_buffer(void) {
+    while (buffer_len > 0) {
+        buffer_len--; 
+        buffer[buffer_len] = 0;
+    }
 }
 
 void parse_buffer(void) {
@@ -121,16 +61,25 @@ void parse_buffer(void) {
     // echo
     else if (strncmp(buffer, "echo ", 5) == 0) {
         load_cursor();
-        uart_send(UART0, LF);
-        uart_send_string(UART0, buffer+5);
-        uart_send(UART0, LF);
+        send_char(LF);
+        send_string(buffer+5);
+        send_char(LF);
         show_prompt();
     } 
     // anything else
     else {
-        uart_send(UART0, LF);
+        send_char(LF);
         show_prompt();
     }
+}
+
+void handle_char(char c) {
+    if (read_state != IDLE) {
+        read_escape_sequence(c);
+        return;
+    }
+
+    read_char(c);
 }
 
 void read_char(char c) {
@@ -142,7 +91,7 @@ void read_char(char c) {
                 buffer_len--;
                 buffer[buffer_len] = 0;
                 backspace();
-                if (buffer[buffer_len-1] == SPACE)
+                if (buffer[buffer_len-1] == SPACE) break;
             }
             break;
         case CR:
@@ -160,7 +109,7 @@ void read_char(char c) {
             if (buffer_len < BUFFER_CAPACITY) {
                 buffer[buffer_len] = c;
                 buffer_len++;
-                uart_send(UART0, c);
+                send_char(c);
             }
             break;
 
@@ -182,8 +131,6 @@ void read_char(char c) {
 }
 
 void read_escape_sequence(char c) {
-    // TODO: Verify if there isn't a way to implement by callbacks
-
     // Escape sequence 1st byte
     if (read_state == ESC1) {
         switch(c) {
@@ -249,13 +196,4 @@ void read_escape_sequence(char c) {
         }
         return;
     }
-}
-
-void handle_char(char c) {
-    if (read_state != IDLE) {
-        read_escape_sequence(c);
-        return;
-    }
-
-    read_char(c);
 }
