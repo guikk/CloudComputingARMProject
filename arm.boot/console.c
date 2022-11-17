@@ -11,11 +11,10 @@ void send_chars(int n, ...) {
     va_list args;
     va_start(args, n);
  
-    for (int i; i < n; i++) {
-        int c = va_arg(args, int);
+    for (int i=0; i < n; i++) {
+        unsigned char c = va_arg(args, int);
         uart_send(UART0, c);
     }
- 
     va_end(args);
 }
 
@@ -26,6 +25,10 @@ void send_string(const unsigned char *s) {
 // Console actions
 void clear_screen(void) {
     send_chars(4, ESC,'[','2','J');
+}
+
+void clear_line(void) {
+    send_chars(4, ESC,'[','2','K');
 }
 
 void cursor_to_home(void) {    

@@ -5,3 +5,4 @@
 .recommenders/
 .metadata/
 arm.boot/arm-gnu-toolchain/
+**/.vscode

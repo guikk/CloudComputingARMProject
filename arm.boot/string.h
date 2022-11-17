@@ -20,7 +20,10 @@
 
 #include <stddef.h>
 
+size_t strlen (const char *__s);
 int strcmp(const char *__s1, const char *__s2);
 int strncmp(const char *__s1, const char *__s2, size_t __n);
+char *strcpy(char *__restrict __dest, const char *__restrict __src);
+void *memmove(void *__dest, const void *__src, size_t __n);
 
 #endif /* string.h  */

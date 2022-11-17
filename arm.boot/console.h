@@ -24,13 +24,14 @@ void send_string(const unsigned char *s);
 
 // Console actions
 void clear_screen(void);
+void clear_line(void);
 void cursor_to_home(void);
 void save_cursor(void);
 void load_cursor(void);
-void cursor_up(void);
-void cursor_down(void);
-void cursor_right(void);
-void cursor_left(void);
+void move_cursor_up(void);
+void move_cursor_down(void);
+void move_cursor_right(void);
+void move_cursor_left(void);
 void backspace(void);
 
 #endif /* CONSOLE_H_ */
