@@ -180,3 +180,14 @@ This error makes it impossible to advance on the 2nd part of the project.
 
 - Finished implementing history
 - Implemented editing mid-line with delete/backspace and adding characters
+
+- Found out that the problem was one of the **provided** files with a bad extension: `irqs.S`.
+It surprises me that no one cared to make a note about it on the course Discord.
+
+- Added memory space for the IRQ stack
+- Initialized TX and RX circular buffers
+- Enabled FIFO queues
+- Set interrupt masks
+- Configure interrupt callbacks
+
+After the call to `wfi()` the program hangs and receives no interruptions.

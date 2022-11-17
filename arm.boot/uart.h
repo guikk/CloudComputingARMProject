@@ -30,6 +30,8 @@
 #define UART_RXFE (1<<4)
 #define UART_BUSY (1<<3)
 
+void init_uart(void);
+
 /**
  * Receive a character from the given uart, this is a non-blocking call.
  * Returns 0 if there are no character available.
@@ -50,5 +52,8 @@ void uart_send(int uart, unsigned char s);
  */
 void uart_send_string(int uart, const unsigned char *s);
 
+void rx_callback(void);
+void tx_callback(void);
+void rt_callback(void);
 
 #endif /* UART_H_ */
