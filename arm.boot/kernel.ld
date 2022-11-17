@@ -43,4 +43,11 @@ SECTIONS
   . = ALIGN(8);
   . = . + 0x1000; /* 4kB of stack memory */
   stack_top = .;
+
+/*
+ * Reserve memory for the interrupt request stack
+ */
+  . = ALIGN(8);
+  . = . + 0x1000; /* 4kB of stack memory */
+  irq_stack_top = .;
 }
