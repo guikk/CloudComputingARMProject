@@ -59,3 +59,6 @@ To make it even easier to edit the current line, support to the `Ctrl + BACKSPAC
 The project was also intended to deliver interrupt support, but even with the addition of initialization and callbacks to handle the interrupt behaviours, they did not work as expected. The program hangs after the first call to *wait for interrupts* and doesn't receive any further messages. The problem could be in some lacking setup instruction which helped the system handling the input signals.
 
 The work for this part is available in the `week2` branch.
+
+## Journal
+Notes from the development progression are available [here](worklog/Journal.md).

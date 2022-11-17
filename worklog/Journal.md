@@ -180,3 +180,5 @@ This error makes it impossible to advance on the 2nd part of the project.
 
 - Finished implementing history
 - Implemented editing mid-line with delete/backspace and adding characters
+
+(Further Journal updates on the `week2` branch)
