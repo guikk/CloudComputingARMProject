@@ -1,35 +1,10 @@
 #include "shell.h"
 #include "kprintf.h"
 #include "board.h"
+#include "console.h"
+#include "shell_buffer.h"
 #include <unistd.h>
 #include "string.h"
-
-// Constants
-#define CONSOLE_HEIGHT 40
-#define CONSOLE_WIDTH 80
-#define BUFFER_CAPACITY 70
-// #define HISTORY_LEN 20
-
-// ASCII Codes
-#define BACKSPACE 8
-#define LF 10
-#define CR 13
-#define ESC 27
-#define SPACE 32
-#define MIN_READABLE_ASCII 32
-#define MAX_READABLE_ASCII 126
-#define DEL 127
-
-// TODO: use circular buffer on cb.h
-unsigned char buffer[BUFFER_CAPACITY];
-static int buffer_len = 0;
-
-void clear_buffer(void) {
-    while (buffer_len > 0) {
-        buffer_len--; 
-        buffer[buffer_len] = 0;
-    }
-}
 
 typedef enum
 {
@@ -40,34 +15,11 @@ typedef enum
 } ReadState;
 static ReadState read_state = IDLE;
 
-// TODO: implement history with a circular buffer
-// unsigned char buffer_history[HISTORY_LEN][BUFFER_CAPACITY];
-// static int history_start = 0;
-// static int history_end = 0;
-
-
-void show_prompt(void) {
-    uart_send_string(UART0, "cloudshell> ");
-}
-
-void clear_screen(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, '2');
-    uart_send(UART0, 'J');
-}
-
-void cursor_to_home(void) {    
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'H');
-}
-
-void save_cursor(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '7');
-
-}
+static void show_prompt(void);
+static void parse_buffer(void);
+static void refresh_buffer(void);
+static void read_char(char c);
+static void read_escape_sequence(char c);
 
 void init_shell(void) {
 	clear_screen();
@@ -76,42 +28,19 @@ void init_shell(void) {
     save_cursor();
 }
 
-void load_cursor(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '8');
+static void show_prompt(void) {
+    send_string("cloudshell> ");
 }
 
-void cursor_up(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'A');
+static void refresh_buffer() {
+    clear_line();
+    send_char(CR);
+    show_prompt();
+    send_string(get_buffer());
 }
 
-void cursor_down(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'B');
-}
-
-void cursor_right(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'C');
-}
-
-void cursor_left(void) {
-    uart_send(UART0, ESC);
-    uart_send(UART0, '[');
-    uart_send(UART0, 'D');
-}
-
-void backspace(void) {
-    uart_send(UART0, BACKSPACE);
-    uart_send(UART0, SPACE);
-    uart_send(UART0, BACKSPACE);
-}
-
-void parse_buffer(void) {
+static void parse_buffer(void) {
+    unsigned char* buffer = get_buffer();
     // reset
     if (strcmp(buffer, "reset") == 0) {
         clear_screen();
@@ -121,33 +50,49 @@ void parse_buffer(void) {
     // echo
     else if (strncmp(buffer, "echo ", 5) == 0) {
         load_cursor();
-        uart_send(UART0, LF);
-        uart_send_string(UART0, buffer+5);
-        uart_send(UART0, LF);
+        send_char(LF);
+        send_string(buffer+5);
+        send_char(LF);
         show_prompt();
     } 
     // anything else
     else {
-        uart_send(UART0, LF);
+        send_char(LF);
         show_prompt();
     }
 }
 
-void read_char(char c) {
+void handle_char(char c) {
+    if (read_state != IDLE) {
+        read_escape_sequence(c);
+        return;
+    }
+
+    read_char(c);
+}
+
+static void read_char(char c) {
+    // Log read ASCII value
+    kprintf("ASCII(%d)\t", c);
 
     switch(c) {
         case BACKSPACE: // When pressed Ctrl + Backspace
-            load_cursor();
-            while (buffer_len > 0) {
-                buffer_len--;
-                buffer[buffer_len] = 0;
+            while (!is_buffer_empty() && !is_buffer_offset_min()) {
+                buffer_remove_left();
                 backspace();
-                if (buffer[buffer_len-1] == SPACE)
+                if (!is_buffer_offset_min() && buffer_peek() == SPACE)
+                    break;
             }
+            save_cursor();
+            refresh_buffer();
+            load_cursor();
             break;
         case CR:
             parse_buffer();
-            clear_buffer();
+            if (!is_buffer_empty()) {
+                history_add_buffer();
+                clear_buffer();
+            }
             
             break;
 
@@ -156,34 +101,32 @@ void read_char(char c) {
             return;
 
         case MIN_READABLE_ASCII ... MAX_READABLE_ASCII:
-            load_cursor();
-            if (buffer_len < BUFFER_CAPACITY) {
-                buffer[buffer_len] = c;
-                buffer_len++;
-                uart_send(UART0, c);
+            if (!is_buffer_full()) {
+                buffer_add(c);
+                save_cursor();
+                refresh_buffer();
+                load_cursor();
+                send_char(c);
             }
             break;
 
         case DEL: // When pressed Backspace
-            load_cursor();
-            if (buffer_len > 0) {
-                buffer_len--;
-                buffer[buffer_len] = 0;
+            if (!is_buffer_empty() && !is_buffer_offset_min()) {
+                buffer_remove_left();
                 backspace();
+                save_cursor();
+                refresh_buffer();
+                load_cursor();
             }
             break;
     }
 
     save_cursor();
 
-    // Log read ASCII value
-    kprintf("ASCII(%d)\t", c);
-    kprintf("Buffer= %s\n", buffer);
+    kprintf("Buffer= %s\n", get_buffer());
 }
 
-void read_escape_sequence(char c) {
-    // TODO: Verify if there isn't a way to implement by callbacks
-
+static void read_escape_sequence(char c) {
     // Escape sequence 1st byte
     if (read_state == ESC1) {
         switch(c) {
@@ -202,27 +145,37 @@ void read_escape_sequence(char c) {
         switch(c) {
             case 'A':
                 // ARROW UP
-                // TODO: bind escape sequence with looking up in command history
-                kprintf("ARROW UP - ESC[A\n");
-                cursor_up();
+                kprintf("ARROW UP - ESC[A ");
+                fetch_history_older();
+                refresh_buffer();
+                read_state = IDLE;
                 break;
             case 'B':
                 // ARROW DOWN
-                // TODO: bind escape sequence with looking down in command history
-                kprintf("ARROW DOWN - ESC[B\n");
-                cursor_down();
+                kprintf("ARROW DOWN - ESC[B ");
+                fetch_history_newer();
+                refresh_buffer();
+                read_state = IDLE;
                 break;
             case 'C':
                 // ARROW RIGHT
-                // TODO: bind escape sequence with editing line buffer
-                kprintf("ARROW RIGHT - ESC[C\n");
-                cursor_right();
+                kprintf("ARROW RIGHT - ESC[C ");
+                if (!is_buffer_offset_max()) {
+                    inc_buffer_offset();
+                    move_cursor_right();
+                }
+                kprintf("\n");
+                read_state = IDLE;
                 break;
             case 'D':
                 // ARROW LEFT
-                // TODO: bind escape sequence with editing line buffer
-                kprintf("ARROW LEFT - ESC[D\n");
-                cursor_left();
+                kprintf("ARROW LEFT - ESC[D ");
+                if (!is_buffer_offset_min()) {
+                    dec_buffer_offset();
+                    move_cursor_left();
+                }
+                kprintf("\n");
+                read_state = IDLE;
                 break;
             case '3':
                 read_state = ESC3;
@@ -239,8 +192,14 @@ void read_escape_sequence(char c) {
         switch(c) {
             case '~': 
                 // DELETE
-                // TODO: bind escape sequence with editing line buffer
-                kprintf("DELETE - ESC[3~\n");
+                kprintf("DELETE - ESC[3~\t");
+                if (!is_buffer_offset_max()) {
+                    buffer_remove_right();
+                    save_cursor();
+                    refresh_buffer();
+                    load_cursor();
+                }
+                kprintf("Buffer= %s\n", get_buffer());
                 read_state = IDLE;
                 break;
             default:
@@ -249,13 +208,4 @@ void read_escape_sequence(char c) {
         }
         return;
     }
-}
-
-void handle_char(char c) {
-    if (read_state != IDLE) {
-        read_escape_sequence(c);
-        return;
-    }
-
-    read_char(c);
 }

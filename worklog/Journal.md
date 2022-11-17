@@ -169,3 +169,14 @@ ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_
 ~~~
 
 This error makes it impossible to advance on the 2nd part of the project.
+
+## November 16th
+
+- Revisiting Part1 of the project, to refactor the code and tie up loose ends
+- Started and almost ended implementing the buffer history
+- Still haven't found a way to continue Part2
+
+## November 17th
+
+- Finished implementing history
+- Implemented editing mid-line with delete/backspace and adding characters
